@@ -11,8 +11,20 @@ import java.util.Map;
  * Created by micke on 2015-11-15.
  */
 public class WebHandler implements RelaxHandler {
-    String HEADER = "<html><header><title>Secret Santa</title></header><body>";
-    String FOOTER = "</body></html>";
+    String HEADER = "<html>\n\t<header>\n\t\t<title>Secret Santa</title>" +
+            "\n\t\t<link type=\"text/css\" rel=\"stylesheet\" href=\"css/style.css\">\n\t</header>\n\t<body>\n";
+    /**
+     * content as String
+     */
+    String CONTAINER_FORMAT = "\t\t<div class=\"%s\">\n%s\n\t\t</div> <!-- container -->\n"; //class, content
+    /**
+     * class as String then src as String
+     */
+    String IMG_FORMAT = "\t\t\t<img class=\"%s\" src=\"%s\">"; // class, src
+    String FORM_FORMAT = "\t\t\t<form method=\"POST\" action=\"%s\">\n%s\n\t\t\t</form>"; //action, content
+    String SELECT_FORMAT = "\t\t\t\t<select class=\"%s\" name=\"%s\">%s</select>"; //class, name, content
+    String OPTION_FORMAT = "\t\t\t\t\t<option value=\"%s\">%s</option>"; //value, content
+    String FOOTER = "\t</body>\n</html>\n\n";
     String LOGIN_FORM = "<form method=\"POST\" action=\"/\"><input name=\"username\"><input type=\"password\" name=\"password\"><button type=\"submit\">Logga in</button></form>";
     String LOGIN_PAGE = HEADER + LOGIN_FORM + FOOTER;
 
@@ -30,7 +42,7 @@ public class WebHandler implements RelaxHandler {
             return true;
         } else {
             /* You are not logged in */
-            if (relaxRequest.getMethod().equalsIgnoreCase("POST")) {
+            if ("POST".equalsIgnoreCase(relaxRequest.getMethod())) {
                 /* You have posted your login details */
                 Map payloadMap = parsePayload(relaxRequest.getPayload());
                 if (payloadMap.get("password").equals("pass")) {
@@ -47,7 +59,15 @@ public class WebHandler implements RelaxHandler {
     }
 
     private void showRecipient(RelaxRequest relaxRequest, RelaxResponse relaxResponse) {
-        relaxResponse.respond(200, "tjosan");
+        StringBuffer buf = new StringBuffer();
+        String santa = String.format(CONTAINER_FORMAT, "image", String.format(IMG_FORMAT, "santa", "img/secret-santa.png"));
+        String options = String.format(OPTION_FORMAT, "None", "Make a selection");
+        String select = String.format(SELECT_FORMAT, "select", "exclude", options);
+        String form = String.format(FORM_FORMAT, "/", select);
+        buf.append(HEADER);
+        buf.append(String.format(CONTAINER_FORMAT, "container", santa + form));
+        buf.append(FOOTER);
+        relaxResponse.respond(200, buf.toString());
     }
 
     private void showLogin(RelaxRequest relaxRequest, RelaxResponse relaxResponse) {
