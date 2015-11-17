@@ -1,0 +1,18 @@
+.container {
+    width: 300px;
+    margin: auto;
+}
+.image {
+    width: 280px;
+    margin: auto;
+    text-align: center;
+}
+form {
+    width: 200px;
+    margin: auto;
+}
+
+form select {
+    width: 100%;
+}
+
