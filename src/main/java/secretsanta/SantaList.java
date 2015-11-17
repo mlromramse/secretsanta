@@ -7,4 +7,8 @@ import java.util.ArrayList;
  */
 public class SantaList {
     ArrayList<Santa> santas = new ArrayList<Santa>();
+
+    public SantaList(Santa santa) {
+
+    }
 }

@@ -5,6 +5,32 @@ package secretsanta;
  */
 public class Recipient {
     String name;
-    int id;
-    String santa;
+    String id;
+    Santa santa;
+
+    public Recipient(String name){
+        setName(name);
+        setId(Helper.getId());
+    }
+
+
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getFormatted(String format) {
+        return String.format(format, name);
+    }
 }
