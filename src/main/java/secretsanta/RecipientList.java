@@ -8,4 +8,15 @@ import java.util.ArrayList;
 public class RecipientList {
     ArrayList<Recipient> recipients= new ArrayList<Recipient>();
 
+    public void addRecipient( Recipient recipient) {
+        recipients.add(recipient);
+    }
+
+    public String getFormattedList(String format) {
+        String result = "";
+        for (Recipient recipient : recipients) {
+            result += recipient.getFormatted(format);
+        }
+        return result;
+    }
 }
