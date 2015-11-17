@@ -11,8 +11,14 @@ import java.util.Map;
  * Created by micke on 2015-11-15.
  */
 public class WebHandler implements RelaxHandler {
-    String HEADER = "<html>\n\t<header>\n\t\t<title>Secret Santa</title>" +
-            "\n\t\t<link type=\"text/css\" rel=\"stylesheet\" href=\"css/style.css\">\n\t</header>\n\t<body>\n";
+    String HEADER = "<html>\n\t<header>\n\t\t<title>Secret Santa</title>\n" +
+            "\t\t<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">\n" +
+            "\t\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/>\n" +
+            "\t\t<link type=\"text/css\" rel=\"stylesheet\" href=\"css/bootstrap.css\">\n" +
+            "\t\t<link type=\"text/css\" rel=\"stylesheet\" href=\"css/bootstrap-responsive.css\">\n" +
+            "\t\t<link type=\"text/css\" rel=\"stylesheet\" href=\"css/bootstrap-theme.min.css\">\n" +
+            "\t\t<link type=\"text/css\" rel=\"stylesheet\" href=\"css/style.css\">\n" +
+            "\t</header>\n\t<body>\n";
     /**
      * content as String
      */
@@ -20,11 +26,15 @@ public class WebHandler implements RelaxHandler {
     /**
      * class as String then src as String
      */
-    String IMG_FORMAT = "\t\t\t<img class=\"%s\" src=\"%s\">"; // class, src
-    String FORM_FORMAT = "\t\t\t<form method=\"POST\" action=\"%s\">\n%s\n\t\t\t</form>"; //action, content
-    String SELECT_FORMAT = "\t\t\t\t<select class=\"%s\" name=\"%s\">%s</select>"; //class, name, content
-    String OPTION_FORMAT = "\t\t\t\t\t<option value=\"%s\">%s</option>"; //value, content
-    String FOOTER = "\t</body>\n</html>\n\n";
+    String IMG_FORMAT = "\t\t\t<img class=\"%s\" src=\"%s\">\n"; // class, src
+    String FORM_FORMAT = "\t\t\t<form method=\"POST\" action=\"%s\">\n%s\n\t\t\t</form>\n\n"; //action, content
+    String FIELDSET_FORMAT = "\t\t\t\t<fieldset>%s</fieldset>\n"; //content
+    String LABEL_FORMAT = "\t\t\t\t<label for=\"%s\">%s</label>\n"; //for, text
+    String INPUT_FORMAT = "\t\t\t\t<input type=\"%s\" name=\"%s\">\n"; //type, name
+    String BUTTON_FORMAT = "\t\t\t\t<button class=\"%s\" name=\"%s\">%s</button>\n"; //class, name, text
+    String SELECT_FORMAT = "\t\t\t\t<select class=\"%s\" name=\"%s\">%s</select>\n\n"; //class, name, content
+    String OPTION_FORMAT = "\t\t\t\t\t<option value=\"%s\">%s</option>\n"; //value, content
+    String FOOTER = "\t</body>\n<script src=\"js/bootstrap.min.js\"/><script src=\"js/jquery.min.js\"/></html>\n\n";
     String LOGIN_FORM = "<form method=\"POST\" action=\"/\"><input name=\"username\"><input type=\"password\" name=\"password\"><button type=\"submit\">Logga in</button></form>";
     String LOGIN_PAGE = HEADER + LOGIN_FORM + FOOTER;
 
@@ -61,9 +71,14 @@ public class WebHandler implements RelaxHandler {
     private void showRecipient(RelaxRequest relaxRequest, RelaxResponse relaxResponse) {
         StringBuffer buf = new StringBuffer();
         String santa = String.format(CONTAINER_FORMAT, "image", String.format(IMG_FORMAT, "santa", "img/secret-santa.png"));
-        String options = String.format(OPTION_FORMAT, "None", "Make a selection");
+        StringBuffer options = new StringBuffer();
+        options.append(String.format(OPTION_FORMAT, "None", "Make a selection if you want"));
+        options.append(String.format(OPTION_FORMAT, "Alicia", "Alicia"));
+        options.append(String.format(OPTION_FORMAT, "Jennifer", "Jennifer"));
+        String selectLabel = String.format(LABEL_FORMAT, "select", "You can deselect one person.");
         String select = String.format(SELECT_FORMAT, "select", "exclude", options);
-        String form = String.format(FORM_FORMAT, "/", select);
+        String button = String.format(BUTTON_FORMAT, "btn btn-large btn-primary", "submit", "Get Your Name");
+        String form = String.format(FORM_FORMAT, "/", selectLabel + select + button);
         buf.append(HEADER);
         buf.append(String.format(CONTAINER_FORMAT, "container", santa + form));
         buf.append(FOOTER);
@@ -71,16 +86,28 @@ public class WebHandler implements RelaxHandler {
     }
 
     private void showLogin(RelaxRequest relaxRequest, RelaxResponse relaxResponse) {
-        relaxResponse.setContentType("text/html");
-        relaxResponse.respond(200, LOGIN_PAGE);
+        StringBuffer buf = new StringBuffer();
+        String santa = String.format(CONTAINER_FORMAT, "image", String.format(IMG_FORMAT, "santa", "img/secret-santa.png"));
+        String username = String.format(INPUT_FORMAT, "text", "username");
+        String password = String.format(INPUT_FORMAT, "password", "password");
+        String button = String.format(BUTTON_FORMAT, "btn btn-large btn-primary", "submit", "Log in");
+        String fieldset = String.format(FIELDSET_FORMAT, username + password + button);
+        String form = String.format(FORM_FORMAT, "/", fieldset);
+        buf.append(HEADER);
+        buf.append(String.format(CONTAINER_FORMAT, "container", santa + form));
+        buf.append(FOOTER);
+        relaxResponse.respond(200, buf.toString());
     }
 
     private Map parsePayload(byte[] payload) {
+        System.out.println(new String(payload));
         Map result = new HashMap();
         String[] payloadArr = new String(payload).split("&");
         for (String nameValue : payloadArr) {
             String[] nameValueArr = nameValue.split("=");
-            result.put(nameValueArr[0], nameValueArr[1]);
+            if (nameValueArr.length == 2) {
+                result.put(nameValueArr[0], nameValueArr[1]);
+            }
         }
         return result;
     }
@@ -92,7 +119,9 @@ public class WebHandler implements RelaxHandler {
             String[] cookieArr = cookieString.split(";");
             for (String cookieItem : cookieArr) {
                 String[] cookieSplit = cookieItem.split("=");
-                cookieMap.put(cookieSplit[0].trim(), cookieSplit[1].trim());
+                if (cookieSplit.length == 2) {
+                    cookieMap.put(cookieSplit[0].trim(), cookieSplit[1].trim());
+                }
             }
         }
         return cookieMap;

@@ -1,6 +1,7 @@
 package secretsanta.web;
 
 import se.romram.handler.DefaultFileHandler;
+import se.romram.main.Properties;
 import se.romram.server.RelaxServer;
 
 import java.io.IOException;
