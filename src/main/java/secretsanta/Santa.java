@@ -39,4 +39,9 @@ public class Santa {
     public void setName(String name) {
         this.name = name;
     }
+
+    public String getFormatted(String format) {
+        return String.format(format, name, name);
+    }
+
 }

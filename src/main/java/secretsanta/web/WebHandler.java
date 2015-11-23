@@ -3,6 +3,8 @@ package secretsanta.web;
 import se.romram.handler.RelaxHandler;
 import se.romram.server.RelaxRequest;
 import se.romram.server.RelaxResponse;
+import secretsanta.RecipientList;
+import secretsanta.SantaList;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +39,14 @@ public class WebHandler implements RelaxHandler {
     String FOOTER = "\t</body>\n<script src=\"js/bootstrap.min.js\"/><script src=\"js/jquery.min.js\"/></html>\n\n";
     String LOGIN_FORM = "<form method=\"POST\" action=\"/\"><input name=\"username\"><input type=\"password\" name=\"password\"><button type=\"submit\">Logga in</button></form>";
     String LOGIN_PAGE = HEADER + LOGIN_FORM + FOOTER;
+
+    SantaList santaList;
+    RecipientList recipientList;
+
+    public WebHandler(SantaList santaList, RecipientList recipientList) {
+        this.santaList = santaList;
+        this.recipientList = recipientList;
+    }
 
     @Override
     public boolean handle(RelaxRequest relaxRequest, RelaxResponse relaxResponse) {
@@ -73,8 +83,7 @@ public class WebHandler implements RelaxHandler {
         String santa = String.format(CONTAINER_FORMAT, "image", String.format(IMG_FORMAT, "santa", "img/secret-santa.png"));
         StringBuffer options = new StringBuffer();
         options.append(String.format(OPTION_FORMAT, "None", "Make a selection if you want"));
-        options.append(String.format(OPTION_FORMAT, "Alicia", "Alicia"));
-        options.append(String.format(OPTION_FORMAT, "Jennifer", "Jennifer"));
+        options.append(santaList.getFormattedList(OPTION_FORMAT));
         String selectLabel = String.format(LABEL_FORMAT, "select", "You can deselect one person.");
         String select = String.format(SELECT_FORMAT, "select", "exclude", options);
         String button = String.format(BUTTON_FORMAT, "btn btn-large btn-primary", "submit", "Get Your Name");
@@ -88,10 +97,13 @@ public class WebHandler implements RelaxHandler {
     private void showLogin(RelaxRequest relaxRequest, RelaxResponse relaxResponse) {
         StringBuffer buf = new StringBuffer();
         String santa = String.format(CONTAINER_FORMAT, "image", String.format(IMG_FORMAT, "santa", "img/secret-santa.png"));
-        String username = String.format(INPUT_FORMAT, "text", "username");
+        StringBuffer options = new StringBuffer();
+        options.append(String.format(OPTION_FORMAT, "None", "Who are you?"));
+        options.append(santaList.getFormattedList(OPTION_FORMAT));
+        String select = String.format(SELECT_FORMAT,"username","username", options);
         String password = String.format(INPUT_FORMAT, "password", "password");
         String button = String.format(BUTTON_FORMAT, "btn btn-large btn-primary", "submit", "Log in");
-        String fieldset = String.format(FIELDSET_FORMAT, username + password + button);
+        String fieldset = String.format(FIELDSET_FORMAT, select + password + button);
         String form = String.format(FORM_FORMAT, "/", fieldset);
         buf.append(HEADER);
         buf.append(String.format(CONTAINER_FORMAT, "container", santa + form));

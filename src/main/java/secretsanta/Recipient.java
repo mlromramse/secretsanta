@@ -31,6 +31,6 @@ public class Recipient {
     }
 
     public String getFormatted(String format) {
-        return String.format(format, name);
+        return String.format(format, name, name);
     }
 }
